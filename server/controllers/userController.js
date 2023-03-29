@@ -7,7 +7,15 @@ class UserController {
         
     }
 
-    async check(req, res) {
+    async logout(req, res) {
+        
+    }
+
+    async activate(req, res) {
+        
+    }
+
+    async refresh(req, res) {
         
     }
 }
