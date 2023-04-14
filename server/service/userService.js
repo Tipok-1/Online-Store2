@@ -7,10 +7,10 @@ const tokenService = require('./tokenService');
 const UserDto = require('../dtos/userDto');
 
 class UserService {
-    MakeDtoAndTokens(user){
+    async MakeDtoAndTokens(user){
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
-        tokenService.saveToken(userDto.id, tokens.refreshToken);
+        await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return {...tokens,user: userDto};
     }
 
@@ -26,7 +26,7 @@ class UserService {
         await mailService.sendActivationMail(user.email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
             .catch(err=>{throw ApiError.badRequest('Ошибка при отправке сообщения для авторизации ' + err.message)})
 
-        return this.MakeDtoAndTokens(user);
+        return await this.MakeDtoAndTokens(user);
     }
 
     async activate(activationLink){
@@ -47,7 +47,26 @@ class UserService {
         if(!isPassEquals) {
             throw ApiError.badRequest(`Указан неверный пароль`);
         }
-        return this.MakeDtoAndTokens(user);
+        return await this.MakeDtoAndTokens(user);
+    }
+
+    async logout(refreshToken) {
+        const token = await tokenService.removeToken(refreshToken);
+        return token;
+    }
+
+    async refresh(refreshToken) {
+        if(!refreshToken) {
+            throw ApiError.UnauthorizedError();
+        }
+        const userData = tokenService.validateRefreshToken(refreshToken);
+        const tokenFromDb = await tokenService.findToken(refreshToken);
+        if(!userData || !tokenFromDb) {
+            throw ApiError.UnauthorizedError();
+        }
+
+        const user = User.findByPk(userData.id);
+        return await this.MakeDtoAndTokens(user);
     }
 }
 

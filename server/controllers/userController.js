@@ -29,13 +29,19 @@ class UserController {
         }
     }
 
-    async logout(req, res) {
-        
+    async logout(req, res, next) {
+        try{
+            const {refreshToken} = req.cookies;
+            const token = await UserService.logout(refreshToken);
+            res.clearCookie('refreshToken');
+            return res.json(token);
+        } catch(e) {
+            next(e);
+        }
     }
 
     async activate(req, res, next) {
         try{
-            console.log('1111')
             const activationLink = req.params.link;
             await UserService.activate(activationLink);
             return res.redirect(process.env.CLIENT_URL);
@@ -45,12 +51,15 @@ class UserController {
         
     }
 
-    async check(req, res) {
-        
-    }
-
-    async refresh(req, res) {
-        
+    async refresh(req, res, next) {
+        try{
+            const {refreshToken} = req.cookies;
+            const userData = await UserService.refresh(refreshToken);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true});
+            return res.json(userData);
+        } catch(e) {
+            next(e);
+        }
     }
 }
 
