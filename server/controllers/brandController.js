@@ -1,7 +1,7 @@
 const {Brand} = require('../models/models')
 
 class BrandController {
-    async create(req, res) {
+    async create(req, res, next) {
         try{
             const {name} = req.body;
             const brand = await Brand.create({name});
@@ -12,7 +12,7 @@ class BrandController {
         }
     }
 
-    async getAll(req, res) {
+    async getAll(req, res, next) {
         try{
             const brands = await Brand.findAll();
             return res.json(brands);
