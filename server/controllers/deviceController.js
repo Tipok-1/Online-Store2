@@ -89,11 +89,8 @@ class DeviceController {
     async update(req, res, next) {
         try{
             const {id, ...changedField} = req.body;
-            const {img} = req.files;
-            const device = await Device.findOne({
-                where:{id},
-                include:[{model:DeviceInfo, as: 'info'}]
-            })
+            const img = req.files ? req.files.img : null;
+            const device = await Device.findByPk(id);
             if(!device) {
                 throw ApiError.badRequest(`Продукта с ID - ${id} не существует`);
             }
@@ -106,26 +103,68 @@ class DeviceController {
                 device.img = fileName;
             }
             for(let i = 0; i<fields.length; i++) {
-                if(fields[i] in device) {
-                    if(fields[i] == 'info') {
-                        const info = JSON.parse(changedField[fields[i]]);
-                        await Promise.all(
-                            info.map( i=> DeviceInfo.update({title:i.title, description:i.description},{where: {id:i.id}}))
-                        )
-                    }
-                    else {
-                        device[fields[i]] = changedField[fields[i]];
-                    }
+                if(fields[i] == 'info') {
+                    const info = JSON.parse(changedField[fields[i]]);
+                    await Promise.all(
+                        info.map( i=> DeviceInfo.update({title:i.title, description:i.description},{where: {id:i.id}}))
+                    )
+                }
+                else if(fields[i] in device) {
+                    device[fields[i]] = changedField[fields[i]];
                 }
             }
 
             await device.save();
 
-            let p = await Device.findOne({
+            let deviceWithInfo = await Device.findOne({
                 where:{id},
                 include:[{model:DeviceInfo, as: 'info'}]
             })
-            return res.json(p);
+            
+            return res.json(deviceWithInfo);
+        } catch(e) {
+            next(e);
+        }
+    }
+
+    async createInfo(req, res, next){
+        try{
+            const {deviceId} = req.params;
+            let {info} = req.body;
+            if(info) {
+                //info = JSON.parse(info);
+                await Promise.all(
+                    info.map(i => {
+                    return DeviceInfo.create({
+                        title: i.title,
+                        description: i.description,
+                        deviceId: deviceId
+                    }) 
+                }));
+            }
+            let deviceWithInfo = await Device.findOne({
+                where:{id:deviceId},
+                include:[{model:DeviceInfo, as: 'info'}]
+            })
+            
+            return res.json(deviceWithInfo);
+        } catch(e) {
+            next(e);
+        }
+    }
+    async deleteInfo(req, res, next){
+        try{
+            const {id} = req.params;
+            let info = await DeviceInfo.findByPk(id);
+            let deviceId  = info.deviceId;
+            await info.destroy();
+            let deviceWithInfo = await Device.findOne({
+                where:{id:deviceId},
+                include:[{model:DeviceInfo, as: 'info'}]
+            })
+            
+            return res.json(deviceWithInfo);
+
         } catch(e) {
             next(e);
         }
