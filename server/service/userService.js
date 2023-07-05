@@ -65,7 +65,7 @@ class UserService {
             throw ApiError.UnauthorizedError();
         }
 
-        const user = User.findByPk(userData.id);
+        const user = await User.findByPk(userData.id);
         return await this.MakeDtoAndTokens(user);
     }
 }
