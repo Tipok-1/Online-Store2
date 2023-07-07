@@ -17,14 +17,14 @@ class UserService {
     async registration(email, password, role){
         const candidate = await User.findOne({where:{email}});
         if(candidate) {
-            throw ApiError.badRequest(`Пользователь с почтовым адресом ${email} уже существует`);
+            throw ApiError.badRequest(`Пользователь с почтовым адресом ${email} уже существует`,[], 'email error');
         } 
         const hashPasword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4();
         const user = await User.create({email, role, password: hashPasword, activationLink});
         const basket = await Basket.create({userId: user.id})
         await mailService.sendActivationMail(user.email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
-            .catch(err=>{throw ApiError.badRequest('Ошибка при отправке сообщения для авторизации ' + err.message)})
+            .catch(err=>{throw ApiError.badRequest(`Ошибка при отправке сообщения для авторизации, пользователь с email - ${email} не найден`,[], 'email error')})
 
         return await this.MakeDtoAndTokens(user);
     }
@@ -41,11 +41,11 @@ class UserService {
     async login(email, password) {
         const user = await User.findOne({where:{email}});
         if(!user) {
-            throw ApiError.badRequest(`Пользователь с email - (${email}) не найден`);
+            throw ApiError.badRequest(`Пользователь с email - (${email}) не найден`, [], 'email error');
         }
         const isPassEquals = await bcrypt.compare(password, user.password);
         if(!isPassEquals) {
-            throw ApiError.badRequest(`Указан неверный пароль`);
+            throw ApiError.badRequest(`Указан неверный пароль`, [], 'password error');
         }
         return await this.MakeDtoAndTokens(user);
     }

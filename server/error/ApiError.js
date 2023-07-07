@@ -1,13 +1,14 @@
 module.exports = class ApiError extends Error{
-    constructor(status, message,errors = []) {
+    constructor(status, message, errors = [], type="") {
         super();
         this.status = status;
         this.message = message;
         this.errors = errors;
+        this.type = type;
     }
 
-    static badRequest(message, errors = []) {
-        return new ApiError(404, message, errors)
+    static badRequest(message, errors = [], type='') {
+        return new ApiError(404, message, errors, type)
     }
     // Внутренняя ошибка
     static internal(message) {
