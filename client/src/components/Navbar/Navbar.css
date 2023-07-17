@@ -1,0 +1,76 @@
+.NavBar{
+    width: 100%;
+    height: 65px;
+    background-color: rgb(43, 42, 42);
+    color:white
+}
+.NavBar__content{
+    position: relative;
+    height: 100%;
+    width: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.NavBar__link{
+    color:black;
+    display: flex;
+    font-size: 15px;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    padding: 0 20px;
+    border-radius: 5px;
+    border:2px solid rgb(230, 141, 24);
+    background-color:rgb(255, 255, 255);
+    transition: background-color linear 200ms;
+}
+.NavBar__title{
+    font-size: 28px;
+}
+.NavBar__title a{
+    transition: color linear 200ms;
+    color:white;
+}
+.NavBar__title a:hover{
+    cursor:pointer;
+    color:rgb(230, 141, 24);
+}
+.NavBar__link:hover{
+    cursor:pointer;
+    background-color:rgb(250, 224, 169);
+}
+
+.NavBarProfile{
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    justify-content: space-between;
+    width: 220px;
+    justify-content: space-between;
+}
+.Navbar__basket-img, .Navbar__exit-img,
+ .Navbar__profile-img, .Navbar__profile-arrow{
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.Navbar__basket-img{
+    height:45px;
+    width: 45px;
+}
+
+.Navbar__exit-img{
+    height:28px;
+    width: 28px;
+    margin-top:5px;
+}
+.Navbar__exit-img:hover, .Navbar__profile-wrap:hover{
+    cursor: pointer;
+}
+/*@media only screen and (max-width: 1300px){
+    .NavBar{
+        height:calc(60px + (80 - 60) * ((100vw - 320px) / (1300 - 320)));
+    }
+}*/

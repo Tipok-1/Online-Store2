@@ -1,0 +1,61 @@
+.HorizontalFilterList{
+    display:flex;
+    height:50px;
+    width: 100%;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+.HorizontalFilterList::-webkit-scrollbar {
+    height: 8px; 
+    background-color: white;
+    border-radius: 3px;
+}
+
+.HorizontalFilterList::-webkit-scrollbar-thumb {
+    background-color: grey;
+    border-radius: 9em;
+    border-radius: 3px;
+}
+
+.HorizontalFilterList__Option, .HorizontalFilterList__Option__active{
+    position:relative;
+    min-width: 20%;
+    margin:0 1%;
+    font-weight: bold;
+    text-align: center;
+    user-select: none;
+    color:white;
+    transition: color 200ms linear;
+}
+.HorizontalFilterList__Option:hover{
+    cursor: pointer;
+    color:white;
+}
+
+.HorizontalFilterList__Option:hover::before{
+    transform:scaleX(1);
+    transform-origin: left;
+}
+.HorizontalFilterList__Option:before, .HorizontalFilterList__Option__active:before{
+    content: "";
+    position: absolute;
+    top:1.5em;
+    left: 0;
+    height:3px;
+    margin-left:7.5%;
+    width:85%;
+    border-radius: 3px;
+    background-color:rgb(230, 141, 24);
+    transform:scaleX(0);
+    transform-origin: right;
+    transition:transform 0.2s;
+}
+.HorizontalFilterList__Option__active{
+    color:rgb(230, 141, 24);
+    cursor:pointer;
+   
+}
+.HorizontalFilterList__Option__active:before{
+    transform:scaleX(1);
+}
