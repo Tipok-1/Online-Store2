@@ -39,27 +39,6 @@
     height: 33px;
 }
 
-.Auth-form__Validate-message{
-    height: 25px;
-    color:red;
-    font-size: 14px;
-    line-height: 1.2em;
-}
-.Auth-form__Input__wrap{
-    display: flex;
-    flex-direction: column;
-}
 
-
-.Auth-form__data:valid{
-   border-color: green;
-}
-.Auth-form__data[value=""]{
-    border: 2px solid rgb(230, 141, 24);
-}
-
-.Auth-form__data:invalid{
-    border-color: red;
- }
 
 
