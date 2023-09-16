@@ -1,18 +1,14 @@
-const uuid = require('uuid');
-const path = require('path');
-const fs = require('fs/promises');
 const {Device, DeviceInfo} = require('../models/models')
 const ApiError = require('../error/ApiError');
+const { Op, Sequelize } = require("sequelize");
+const imageService = require('../service/imageService');
 
 class DeviceController {
     async create(req, res, next) {
         try{
-            let {name, price, brandId, typeId, info} = req.body;
-            const {img} = req.files;
-            const fileName = uuid.v4() +'.jpg';
-            img.mv(path.resolve(__dirname, '..', 'static', fileName));
-
-            const device = await Device.create({name, price, brandId, typeId, img:fileName});
+            let {name, price, brandId, typeId, info, description, stock, rating, reviewsCount} = req.body;
+            const images = imageService.createImages(req.files);
+            const device = await Device.create({name, price, brandId, typeId, img:images, description, stock, rating, reviewsCount});
 
             if(info) {
                 info = JSON.parse(info);
@@ -32,23 +28,36 @@ class DeviceController {
 
     async getAll(req, res, next) {
         try{
-            let {brandId, typeId, limit, page} = req.query;
-            page  = page || 1;
-            limit = limit || 9;
+            let {brandId, typeId, limit = 9, page = 1, search = '', minPrice = null, maxPrice = null, IDs = null} = req.query;
             let offset = limit * page - limit;
             let devices;
-            if(!brandId && !typeId) {
-                devices = await Device.findAndCountAll({limit, offset});
+            if(brandId) {
+                brandId = JSON.parse(brandId);
             }
-            if(brandId && !typeId) {
-                devices = await Device.findAndCountAll({where:{brandId}, limit, offset});
+
+            if(IDs) {
+                IDs = JSON.parse(IDs);
             }
-            if(!brandId && typeId) {
-                devices = await Device.findAndCountAll({where:{typeId}, limit, offset});
-            }
-            if(brandId && typeId) {
-                devices = await Device.findAndCountAll({where:{typeId, brandId}, limit, offset});
-            }
+
+        const condition = [
+            Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), {[Op.like]: `%${search.toLowerCase()}%`}),
+            !minPrice ? {} : {price: { [Op.gte]: minPrice}},
+            !maxPrice ? {} : {price: { [Op.lte]: maxPrice}},
+            (!brandId)? {} : {brandId},//[Sequelize.Op.in]:brandId
+            !typeId ? {} : {typeId},
+            (!IDs) ? {} : {id: IDs}
+            
+        ]
+            
+            devices = await Device.findAndCountAll({
+            
+                where: {
+                [Op.and]: condition
+            },limit, offset});
+
+              devices.maxPrice = await Device.max('price', {where:{[Op.and]: condition}});
+              devices.minPrice = await Device.min('price', {where:{[Op.and]: condition}});
+
             return res.json(devices);
 
         } catch(e) {
@@ -76,8 +85,7 @@ class DeviceController {
             const device  = await Device.findOne({where:{id}})
 
             DeviceInfo.destroy({where:{deviceId: device.id}}); //удаляем асинхронно без await 
-            const filePath = path.resolve(__dirname, '..', 'static', device.img);
-            fs.unlink(filePath); //удаляем асинхронно без await 
+            imageService.deleteImages(device.img);
             const deviceData  = await device.destroy();
 
             return res.json(deviceData);
@@ -88,20 +96,36 @@ class DeviceController {
 
     async update(req, res, next) {
         try{
-            const {id, ...changedField} = req.body;
-            const img = req.files ? req.files.img : null;
+            let {id, deleteImages, ...changedField} = req.body;
+
             const device = await Device.findByPk(id);
             if(!device) {
                 throw ApiError.badRequest(`Продукта с ID - ${id} не существует`);
             }
-            let fields = Object.keys(changedField);
-            if(img) {
-                const fileName = uuid.v4() +'.jpg';
-                img.mv(path.resolve(__dirname, '..', 'static', fileName));
-                const filePath = path.resolve(__dirname, '..', 'static', device.img);
-                fs.unlink(filePath); //удаляем асинхронно без await 
-                device.img = fileName;
+            
+            let deviceImages = [...device.img];
+            if(deleteImages) {
+                deleteImages = JSON.parse(deleteImages);
+                imageService.deleteImages(deleteImages);
+                deviceImages = deviceImages.filter(img=>{
+                    for(let i = 0; i <deleteImages.length; i++) {
+                        if(img === deleteImages[i]) {
+                            return false
+                        }
+                    }
+                    return true;
+                })
             }
+
+            if(req.files) {
+                const newImages = imageService.createImages(req.files);
+                deviceImages = deviceImages.concat(newImages);
+            }
+            if(req.files || deleteImages) {
+                device.img = deviceImages
+            }
+
+            let fields = Object.keys(changedField);
             for(let i = 0; i<fields.length; i++) {
                 if(fields[i] == 'info') {
                     const info = JSON.parse(changedField[fields[i]]);

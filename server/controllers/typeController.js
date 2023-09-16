@@ -33,8 +33,8 @@ class TypeController {
 
     async update(req, res, next){
         try{
-            const {id, newName} = req.body;
-            const typeData = await Type.update({name:newName},{where: {id}});
+            const {id, name} = req.body;
+            const typeData = await Type.update({name:name},{where: {id}});
             return res.json(typeData);
         } catch(e) {
             next(e);

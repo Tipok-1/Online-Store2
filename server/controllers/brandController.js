@@ -33,8 +33,8 @@ class BrandController {
 
     async update(req, res, next){
         try{
-            const {id, newName} = req.body;
-            const brandData = await Brand.update({name:newName},{where: {id}});
+            const {id, name} = req.body;
+            const brandData = await Brand.update({name:name},{where: {id}});
             return res.json(brandData);
         } catch(e) {
             next(e);
