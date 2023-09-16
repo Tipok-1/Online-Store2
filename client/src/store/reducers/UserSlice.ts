@@ -4,13 +4,15 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 interface UserState{
     isAuth:boolean,
     user:IUser
+    sentEmailConfirmation:boolean
 }
 
 const initialState:UserState = {
-    isAuth:true,
+    isAuth:false,
+    sentEmailConfirmation:false,
     user:{
-        id:1,
-        email:"tima.chaburko@mail.ru",
+        id:2,
+        email:"chaburko.tima@mail.ru",
         role:"USER",
         isActivated:false
     }
@@ -25,6 +27,9 @@ export const userSlice = createSlice({
         },
         setUser(state,action:PayloadAction<IUser>) {
             state.user = action.payload;
+        },
+        setSentEmailConfirmation(state, action:PayloadAction<boolean>){
+            state.sentEmailConfirmation = action.payload;
         }
     }
 })
