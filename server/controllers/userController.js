@@ -7,7 +7,7 @@ class UserController {
         try{
             const errors = validationResult(req);
             if(!errors.isEmpty()) {
-                throw ApiError.badRequest("Ошибка при валидации", errors.array());
+                throw ApiError.badRequest("Ошибка при валидации", errors.array(), `${errors.array()[0].param} error`);
             }
             const {email, password, role} = req.body;
             const userData = await UserService.registration(email, password, role);
@@ -57,6 +57,20 @@ class UserController {
             const userData = await UserService.refresh(refreshToken);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true});
             return res.json(userData);
+        } catch(e) {
+            next(e);
+        }
+    }
+
+    async sendActivationMessage(req, res, next){
+        try{
+            const errors = validationResult(req);
+            if(!errors.isEmpty()) {
+                throw ApiError.badRequest("Ошибка при валидации", errors.array(), `${errors.array()[0].param} error`);
+            }
+            const {email} = req.body;
+            await UserService.sendActivationMessage(email);
+            return res.end();
         } catch(e) {
             next(e);
         }

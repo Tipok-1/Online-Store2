@@ -1,4 +1,4 @@
-const {User, Basket} = require('../models/models');
+const { User, Basket } = require('../models/models');
 const bcrypt = require('bcrypt');
 const ApiError = require('../error/ApiError');
 const uuid = require('uuid');
@@ -7,31 +7,43 @@ const tokenService = require('./tokenService');
 const UserDto = require('../dtos/userDto');
 
 class UserService {
-    async MakeDtoAndTokens(user){
+    async MakeDtoAndTokens(user) {
         const userDto = new UserDto(user);
-        const tokens = tokenService.generateTokens({...userDto});
+        const tokens = tokenService.generateTokens({ ...userDto });
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        return {...tokens,user: userDto};
+        return { ...tokens, user: userDto };
     }
 
-    async registration(email, password, role){
-        const candidate = await User.findOne({where:{email}});
-        if(candidate) {
-            throw ApiError.badRequest(`Пользователь с почтовым адресом ${email} уже существует`,[], 'email error');
-        } 
+    async registration(email, password, role) {
+        const candidate = await User.findOne({ where: { email } });
+        if (candidate) {
+            throw ApiError.badRequest(`Пользователь с почтовым адресом ${email} уже существует`, [], 'email error');
+        }
         const hashPasword = await bcrypt.hash(password, 3)
         const activationLink = uuid.v4();
-        const user = await User.create({email, role, password: hashPasword, activationLink});
-        const basket = await Basket.create({userId: user.id})
+        const user = await User.create({ email, role, password: hashPasword, activationLink });
+        const basket = await Basket.create({ userId: user.id })
         await mailService.sendActivationMail(user.email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
-            .catch(err=>{throw ApiError.badRequest(`Ошибка при отправке сообщения для авторизации, пользователь с email - ${email} не найден`,[], 'email error')})
+            .catch(() => { throw ApiError.badRequest(`Ошибка при отправке сообщения для авторизации, пользователь с email - ${email} не найден`, [], 'email error') })
 
         return await this.MakeDtoAndTokens(user);
     }
 
-    async activate(activationLink){
-        const user = await User.findOne({where:{activationLink}});
-        if(!user) {
+    async sendActivationMessage(email) {
+        const activationLink = uuid.v4();
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            throw new ApiError.badRequest(`Некоректный email`);
+        }
+        user.activationLink = activationLink;
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/user/activate/${activationLink}`)
+            .catch(() => { throw ApiError.badRequest(`Ошибка при отправке сообщения для авторизации, пользователь с email - ${email} не найден`, [], 'email error') })
+        await user.save();
+    }
+
+    async activate(activationLink) {
+        const user = await User.findOne({ where: { activationLink } });
+        if (!user) {
             throw new ApiError.badRequest(`Некоректная ссылка активации`);
         }
         user.isActivated = true;
@@ -39,12 +51,12 @@ class UserService {
     }
 
     async login(email, password) {
-        const user = await User.findOne({where:{email}});
-        if(!user) {
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
             throw ApiError.badRequest(`Пользователь с email - (${email}) не найден`, [], 'email error');
         }
         const isPassEquals = await bcrypt.compare(password, user.password);
-        if(!isPassEquals) {
+        if (!isPassEquals) {
             throw ApiError.badRequest(`Указан неверный пароль`, [], 'password error');
         }
         return await this.MakeDtoAndTokens(user);
@@ -56,12 +68,12 @@ class UserService {
     }
 
     async refresh(refreshToken) {
-        if(!refreshToken) {
+        if (!refreshToken) {
             throw ApiError.UnauthorizedError();
         }
         const userData = tokenService.validateRefreshToken(refreshToken);
         const tokenFromDb = await tokenService.findToken(refreshToken);
-        if(!userData || !tokenFromDb) {
+        if (!userData || !tokenFromDb) {
             throw ApiError.UnauthorizedError();
         }
 

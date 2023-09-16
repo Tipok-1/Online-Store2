@@ -9,7 +9,12 @@ router.post('/registration',
     userController.registration);
 router.post('/login',userController.login);
 router.post('/logout', userController.logout);
+router.post('/send_message', 
+    body('email').isEmail(),
+    userController.sendActivationMessage
+)
 router.get('/refresh',userController.refresh);
 router.get('/activate/:link',userController.activate);
+
 
 module.exports = router;
