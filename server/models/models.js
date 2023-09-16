@@ -23,7 +23,10 @@ const Device = sequelize.define('device', {
     name:{type: DataTypes.STRING, unique:true, allowNull:false},
     price:{type: DataTypes.FLOAT, allowNull:false},
     rating:{type: DataTypes.FLOAT, defaultValue:0},
-    img:{type: DataTypes.STRING, allowNull:false},
+    stock:{type:DataTypes.INTEGER, defaultValue:1},
+    description:{type:DataTypes.TEXT,defaultValue:''},
+    reviewsCount:{type:DataTypes.INTEGER, defaultValue:0},
+    img:{type:DataTypes.ARRAY(DataTypes.STRING), allowNull:false}
 })
 
 const Type = sequelize.define('type', {
@@ -36,9 +39,12 @@ const Brand = sequelize.define('brand', {
     name:{type: DataTypes.STRING, unique:true, allowNull:false},
 })
 
-const Rating = sequelize.define('rating', {
+const Review = sequelize.define('review', {
     id:{type: DataTypes.INTEGER, primaryKey:true, autoIncrement:true},
-    rate:{type: DataTypes.INTEGER, allowNull:false},
+    name:{type: DataTypes.STRING, allowNull:false},
+    review:{type:DataTypes.TEXT,defaultValue:''},
+    email:{type: DataTypes.STRING},
+    grade:{type: DataTypes.FLOAT, allowNull:false},
 })
 
 const DeviceInfo = sequelize.define('device_info', {
@@ -56,14 +62,16 @@ const TypeBrand = sequelize.define('type_brand', {
     id:{type: DataTypes.INTEGER, primaryKey:true, autoIncrement:true},
 })
 
+
+
 User.hasOne(Basket);
 Basket.belongsTo(User);
 
 User.hasOne(Token);
 Token.belongsTo(User);
 
-User.hasMany(Rating);
-Rating.belongsTo(User);
+User.hasMany(Review);
+Review.belongsTo(User);
 
 Basket.hasMany(BasketDevice);
 BasketDevice.belongsTo(Basket);
@@ -74,8 +82,8 @@ Device.belongsTo(Type);
 Brand.hasMany(Device);
 Device.belongsTo(Brand);
 
-Device.hasMany(Rating);
-Rating.belongsTo(Device);
+Device.hasMany(Review);
+Review.belongsTo(Device);
 
 Device.hasMany(BasketDevice);
 BasketDevice.belongsTo(Device);
@@ -87,5 +95,5 @@ Type.belongsToMany(Brand, {through:TypeBrand});
 Brand.belongsToMany(Type, {through:TypeBrand});
 
 module.exports = {
-    User, Basket, BasketDevice, Device, Type, Brand, Rating, DeviceInfo, TypeBrand, Token
+    User, Basket, BasketDevice, Device, Type, Brand, Review, DeviceInfo, TypeBrand, Token
 }
