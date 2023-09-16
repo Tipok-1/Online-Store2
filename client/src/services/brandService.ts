@@ -36,4 +36,4 @@ export const brandApi = Api.injectEndpoints({
         query:()=>({
             url:'/brand',
         })
-    })})})
+})})})

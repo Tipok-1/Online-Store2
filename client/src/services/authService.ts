@@ -21,7 +21,6 @@ export const authApiUser= authApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const response= await queryFulfilled;
-                    console.log(response);
                     saveUser(response.data, dispatch);
                     
                 } catch (e) {
@@ -50,7 +49,8 @@ export const authApiUser= authApi.injectEndpoints({
         logout: build.mutation<void, void>({
             query:()=>({
                 url:'/user/logout',
-                method:'POST',            }),
+                method:'POST',            
+            }),
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     await queryFulfilled;
@@ -62,6 +62,14 @@ export const authApiUser= authApi.injectEndpoints({
                     console.error("Logout error " + e);
                 }
             },
+        }),
+
+        sendActivationMessage: build.mutation<void, string>({
+            query:(email)=>({
+                url:'/user/send_message',
+                method:'POST',
+                body:{email: email}        
+            }),
         }),
 
     })

@@ -71,7 +71,7 @@ export const authApi = createApi({
 
 export const Api = createApi({
     reducerPath: 'api',
-
+    tagTypes: ['Device', 'Review'],
     baseQuery: fetchBaseQuery({
         baseUrl: process.env.REACT_APP_API_URL + '/api'}),
     endpoints: _ => ({}),
