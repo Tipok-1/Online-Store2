@@ -1,0 +1,34 @@
+.Navbar__profile-wrap{
+    display: flex;
+    position:relative;
+}
+.Navbar__profile-arrow{
+    height:15px;
+    width: 15px;
+    margin-bottom:15px;
+    transition: transform 100ms linear;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.ProfileMenu__oneOption, .ProfileMenu__oneOption_disabled{
+    width: 100%;
+    margin-bottom: 5px;
+    color:black;
+    transition: color 200ms linear;
+}
+.ProfileMenu__oneOption:hover{
+    cursor: pointer;
+    color:rgb(230, 141, 24);
+}
+.ProfileMenu__options__title{
+    user-select: none;
+    text-align: center;
+    color:black;
+    padding-bottom: 10px;
+}
+.ProfileMenu__message{
+    color:red;
+    font-size: 12px;
+    height: auto;
+}
