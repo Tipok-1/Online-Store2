@@ -1,0 +1,25 @@
+.oneDevice__Card{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.oneDevice__Card:hover{
+    cursor: pointer;
+}
+.oneDevice__cardContent{
+    display: flex;
+    flex:1 1 auto;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.oneDevice__cardActions{
+    justify-self: flex-end;
+}
+.oneDevice__image{
+    height:60%;
+    width: 100%;
+    display:flex;
+    color:white;
+    justify-content: center;
+    align-items: center;
+}
