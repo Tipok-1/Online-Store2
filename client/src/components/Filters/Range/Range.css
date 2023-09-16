@@ -1,0 +1,20 @@
+.Range__wrap{
+    display:flex;
+    flex-direction: column;
+    border: 1px solid grey;
+    color:white;
+    padding:30px;
+}
+.Range__title{
+    margin-bottom: 20px;
+    font-size: 18px;
+    color:rgb(228, 221, 221);
+}
+.Range__values{
+    width: 100%;
+    display: flex;
+    margin-top: 8px;
+    font-size: 18px;
+    color:rgb(228, 221, 221);
+    justify-content: space-between;
+}

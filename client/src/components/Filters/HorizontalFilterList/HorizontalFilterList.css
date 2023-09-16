@@ -59,3 +59,14 @@
 .HorizontalFilterList__Option__active:before{
     transform:scaleX(1);
 }
+
+@media only screen and (max-width: 650px){
+    .HorizontalFilterList__Option, .HorizontalFilterList__Option__active{
+        min-width: 33%;
+    }
+}
+@media only screen and (max-width: 440px){
+    .HorizontalFilterList__Option, .HorizontalFilterList__Option__active{
+        min-width: 50%;
+    }
+}
